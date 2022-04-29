@@ -7,4 +7,5 @@ const router = express.Router();
 
 router.get('/', (req, res) => res.send('Posts route'));
 
+// Export
 module.exports = router;
