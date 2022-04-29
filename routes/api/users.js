@@ -101,9 +101,9 @@ router.post(
         { expiresIn: 360000 },
         // Callback function
         (err, token) => {
-          // If error
+          // If error, throw error
           if (err) throw err;
-          // If token
+          // If token, send back token
           res.json({ token });
         }
       );
