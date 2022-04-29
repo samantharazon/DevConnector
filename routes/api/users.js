@@ -29,7 +29,7 @@ router.post(
     }),
   ],
 
-  // Checking data
+  // Using data
   async (req, res) => {
 
     // Validating results

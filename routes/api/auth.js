@@ -41,7 +41,7 @@ router.post(
     check('password', 'Password is required').exists(),
   ],
 
-  // Checking data
+  // Using data
   async (req, res) => {
     // Validating results
     const errors = validationResult(req);
