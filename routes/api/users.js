@@ -16,8 +16,11 @@ const User = require('../../models/User');
 router.post(
   '/',
   [
+    // Check name
     check('name', 'Name is required').not().isEmpty(),
+    // Check email
     check('email', 'Please include a valid email').isEmail(),
+    // Check password
     check(
       'password',
       'Please enter a password with 6 or more characters'
