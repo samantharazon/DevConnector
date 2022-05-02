@@ -4,6 +4,7 @@ const gravatar = require('gravatar');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('config');
+// For post, bring this in
 const { check, validationResult } = require('express-validator');
 
 // Bring in model
@@ -16,6 +17,7 @@ const User = require('../../models/User');
 // Sending data
 router.post(
   '/',
+  // Using express-validator
   [
     // Check name
     check('name', 'Name is required').not().isEmpty(),
@@ -29,14 +31,13 @@ router.post(
       min: 6,
     }),
   ],
-
-  // Using data
+  // Using data (async)
   async (req, res) => {
 
-    // Validating results
+    // Validate results
     const errors = validationResult(req);
 
-    // Checking above validation
+    // Check above validation (If error, return response)
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
