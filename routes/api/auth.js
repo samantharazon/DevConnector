@@ -8,9 +8,11 @@ const { check, validationResult } = require('express-validator');
 
 const User = require('../../models/User');
 
+// ==================================================================
 // @route    GET api/auth
 // @desc     Test route
 // @access   Public
+// ==================================================================
 
 // Getting protected data
 router.get('/', auth, async (req, res) => {
@@ -27,9 +29,11 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+// ==================================================================
 // @route    POST api/auth
 // @desc     Authenticate user & get token
 // @access   Public
+// ==================================================================
 
 // Sending data
 router.post(

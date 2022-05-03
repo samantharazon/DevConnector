@@ -8,9 +8,11 @@ const { check, validationResult } = require('express-validator');
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
 
+// ==================================================================
 // @route    GET api/profile/me
 // @desc     Get current users profile
 // @access   Private
+// ==================================================================
 
 router.get('/me', auth, async (req, res) => {
   // Query
@@ -36,9 +38,11 @@ router.get('/me', auth, async (req, res) => {
   }
 });
 
+// ==================================================================
 // @route    POST api/profile
 // @desc     Create or update user profile
 // @access   Private
+// ==================================================================
 
 router.post(
   '/',
@@ -85,9 +89,9 @@ router.post(
     // Get correct user (using Profile Model)
     profileFields.user = req.user.id;
 
-    // ================================================================
+    // --------------------------------
     // Add fields
-    // ================================================================
+    // ---------------------------------
 
     // Add each field to profile
     if (company) profileFields.company = company;
@@ -102,9 +106,9 @@ router.post(
       profileFields.skills = skills.split(',').map((skill) => skill.trim());
     }
 
-    // ================================================================
+    // --------------------------------
     // Add fields for Social, which is an object
-    // ================================================================
+    // --------------------------------
 
     // Build social object
     profileFields.social = {};
@@ -116,21 +120,17 @@ router.post(
     if (linkedin) profileFields.social.linkedin = linkedin;
     if (instagram) profileFields.social.instagram = instagram;
 
-    // ================================================================
+    // --------------------------------
     // Update Profile
-    // ================================================================
-
-    // ========================
-    // Try
-    // ========================
+    // --------------------------------
     try {
       // Find by user (req.user.id comes from the token)
       // Note: Since we are using async await, when we use mongoose method .findOne, it returns a promise, so put keyword await
       let profile = await Profile.findOne({ user: req.user.id });
 
-      // ========================
+      // --------------------------------
       // If profile is found...
-      // ========================
+      // --------------------------------
       if (profile) {
         // Update profile
         profile = await Profile.findOneAndUpdate(
@@ -143,9 +143,9 @@ router.post(
         return res.json(profile);
       }
 
-      // ========================
+      // --------------------------------
       // If profile is not found...
-      // ========================
+      // --------------------------------
 
       // Create profile
       profile = new Profile(profileFields);
@@ -156,15 +156,67 @@ router.post(
       // Return Profile
       res.json(profile);
 
-      // ========================
+      // --------------------------------
       // Catch error
-      // ========================
+      // --------------------------------
     } catch (err) {
       console.error(err.message);
       res.status(500).send('Server Error');
     }
   }
 );
+
+// ==================================================================
+// @route    GET api/profile
+// @desc     Get all profiles
+// @access   Public
+// ==================================================================
+
+router.get('/', async (req, res) => {
+  try {
+    // Get all profiles
+    // Add name and avatar using .populate
+    const profiles = await Profile.find().populate('user', ['name', 'avatar']);
+
+    // Send profiles
+    res.json(profiles);
+
+    // Catch error
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// ==================================================================
+// @route    GET api/profile/user/:user_id
+// @desc     Get profile by user ID
+// @access   Public
+// ==================================================================
+
+router.get('/user/:user_id', async ({ params: { user_id } }, res) => {
+  try {
+    // Get profile from user ID
+    const profile = await Profile.findOne({
+      user: user_id,
+    }).populate('user', ['name', 'avatar']);
+
+    // Check if profile does not exist for the user
+    if (!profile) return res.status(400).json({ msg: 'Profile not found' });
+
+    // Send profile
+    return res.json(profile);
+
+    // Catch error
+  } catch (err) {
+    console.error(err.message);
+    // Check error kind 
+    if (err.kind == 'ObjectId') {
+      return res.status(400).json({ msg: 'Profile not found' });
+    }
+    return res.status(500).json({ msg: 'Server error' });
+  }
+});
 
 // Export
 module.exports = router;
