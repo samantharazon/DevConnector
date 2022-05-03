@@ -210,11 +210,37 @@ router.get('/user/:user_id', async ({ params: { user_id } }, res) => {
     // Catch error
   } catch (err) {
     console.error(err.message);
-    // Check error kind 
+    // Check error kind
     if (err.kind == 'ObjectId') {
       return res.status(400).json({ msg: 'Profile not found' });
     }
     return res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+// ==================================================================
+// @route    DELETE api/profile
+// @desc     Delete profile, user, & posts
+// @access   Public
+// ==================================================================
+
+router.delete('/', auth, async (req, res) => {
+  try {
+    // @todo - remove users posts
+
+    // Remove profile
+    await Profile.findOneAndRemove({ user: req.user.id });
+
+    // Remove user
+    await User.findOneAndRemove({ _id: req.user.id });
+
+    // Return a message
+    res.json({ msg: 'User deleted' });
+
+    // Catch error
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
   }
 });
 
