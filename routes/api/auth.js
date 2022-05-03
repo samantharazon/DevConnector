@@ -16,12 +16,19 @@ const User = require('../../models/User');
 
 // Getting protected data
 router.get('/', auth, async (req, res) => {
+  // --------------------------------
+  // Try
+  // --------------------------------
   // Call to database using try catch
   try {
     // Find user by id
     const user = await User.findById(req.user.id).select('-password');
     // Send user data
     res.json(user);
+
+    // --------------------------------
+    // Catch error
+    // --------------------------------
   } catch (err) {
     // Return error
     console.error(err.message);
@@ -58,7 +65,9 @@ router.post(
     // Pulling things from req.body
     const { email, password } = req.body;
 
-    // Query
+    // --------------------------------
+    // Try
+    // --------------------------------
     try {
       // Check if user exists by email
       let user = await User.findOne({ email });
@@ -105,7 +114,9 @@ router.post(
         }
       );
 
+      // --------------------------------
       // Catch error
+      // --------------------------------
     } catch (err) {
       console.error(err.message);
       res.status(500).send('Server error');

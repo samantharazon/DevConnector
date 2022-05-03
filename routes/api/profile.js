@@ -15,7 +15,9 @@ const User = require('../../models/User');
 // ==================================================================
 
 router.get('/me', auth, async (req, res) => {
-  // Query
+  // --------------------------------
+  // Try
+  // --------------------------------
   try {
     // Call Profile Model, its user field, and get the user by id (which is in the token)
     const profile = await Profile.findOne({ user: req.user.id }).populate(
@@ -31,7 +33,9 @@ router.get('/me', auth, async (req, res) => {
     // If profile exists, send profile
     res.json(profile);
 
+    // --------------------------------
     // Catch error
+    // --------------------------------
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -121,7 +125,7 @@ router.post(
     if (instagram) profileFields.social.instagram = instagram;
 
     // --------------------------------
-    // Update Profile
+    // Try: update profile
     // --------------------------------
     try {
       // Find by user (req.user.id comes from the token)
@@ -173,6 +177,9 @@ router.post(
 // ==================================================================
 
 router.get('/', async (req, res) => {
+  // --------------------------------
+  // Try
+  // --------------------------------
   try {
     // Get all profiles
     // Add name and avatar using .populate
@@ -181,7 +188,9 @@ router.get('/', async (req, res) => {
     // Send profiles
     res.json(profiles);
 
+    // --------------------------------
     // Catch error
+    // --------------------------------
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -195,6 +204,9 @@ router.get('/', async (req, res) => {
 // ==================================================================
 
 router.get('/user/:user_id', async ({ params: { user_id } }, res) => {
+  // --------------------------------
+  // Try
+  // --------------------------------
   try {
     // Get profile from user ID
     const profile = await Profile.findOne({
@@ -207,7 +219,9 @@ router.get('/user/:user_id', async ({ params: { user_id } }, res) => {
     // Send profile
     return res.json(profile);
 
+    // --------------------------------
     // Catch error
+    // --------------------------------
   } catch (err) {
     console.error(err.message);
     // Check error kind
@@ -221,10 +235,13 @@ router.get('/user/:user_id', async ({ params: { user_id } }, res) => {
 // ==================================================================
 // @route    DELETE api/profile
 // @desc     Delete profile, user, & posts
-// @access   Public
+// @access   Private
 // ==================================================================
 
 router.delete('/', auth, async (req, res) => {
+  // --------------------------------
+  // Try
+  // --------------------------------
   try {
     // @todo - remove users posts
 
@@ -237,12 +254,90 @@ router.delete('/', auth, async (req, res) => {
     // Return a message
     res.json({ msg: 'User deleted' });
 
+    // --------------------------------
     // Catch error
+    // --------------------------------
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
   }
 });
+
+// ==================================================================
+// @route    PUT api/profile/experience
+// @desc     Add profile experience
+// @access   Private
+// ==================================================================
+
+router.put(
+  '/experience',
+  [
+    auth,
+    // Using validations
+    [
+      // Check title
+      check('title', 'Title is required').not().notEmpty(),
+      // Check company
+      check('company', 'Company is required').not().notEmpty(),
+      // Check from
+      check('from', 'From date is required and needs to be from the past')
+        .not()
+        .notEmpty()
+        .custom((value, { req }) => (req.body.to ? value < req.body.to : true)),
+    ],
+  ],
+
+  // In function body
+  async (req, res) => {
+    // Create errors variable
+    const errors = validationResult(req);
+
+    // Check for errors
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Get body data; the data that is coming in
+    const { title, company, location, from, to, current, description } =
+      req.body;
+
+    // Create experience object
+    const newExp = {
+      title,
+      company,
+      location,
+      from,
+      to,
+      current,
+      description,
+    };
+
+    // --------------------------------
+    // Try
+    // --------------------------------
+    try {
+      // Fetch profile that we want to add experience to (using ID that we get from token)
+      const profile = await Profile.findOne({ user: req.user.id });
+
+      // Pushing experience to profile
+      // Pushing to beginning of array by using .unshift (as opposed to pushing)
+      profile.experience.unshift(newExp);
+
+      // Save profile
+      await profile.save();
+
+      // Return response
+      res.json(profile);
+
+      // --------------------------------
+      // Catch error
+      // --------------------------------
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Server Error');
+    }
+  }
+);
 
 // Export
 module.exports = router;

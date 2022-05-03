@@ -35,7 +35,6 @@ router.post(
   ],
   // Using data (async)
   async (req, res) => {
-
     // Validate results
     const errors = validationResult(req);
 
@@ -47,7 +46,9 @@ router.post(
     // Pulling things from req.body
     const { name, email, password } = req.body;
 
-    // Query
+    // --------------------------------
+    // Try
+    // --------------------------------
     try {
       // Check if user exists by email
       let user = await User.findOne({ email });
@@ -60,8 +61,7 @@ router.post(
       }
 
       // Get users gravatar
-      const avatar = gravatar.url(email, 
-      {
+      const avatar = gravatar.url(email, {
         // default size
         s: '200',
         // rating
@@ -81,7 +81,7 @@ router.post(
       // Encrypt the password using bcrypt
       const salt = await bcrypt.genSalt(10);
 
-      // Create hash and put in password 
+      // Create hash and put in password
       user.password = await bcrypt.hash(password, salt);
 
       // Save user in database
@@ -112,7 +112,9 @@ router.post(
         }
       );
 
+      // --------------------------------
       // Catch error
+      // --------------------------------
     } catch (err) {
       console.error(err.message);
       res.status(500).send('Server error');
