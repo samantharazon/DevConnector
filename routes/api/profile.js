@@ -508,32 +508,30 @@ router.get('/github/:username', (req, res) => {
   try {
     // Construct options object with uri
     const options = {
-
       // Plug uri into requests
       uri: `https://api.github.com/users/${
         req.params.username
       }/repos?per_page=5&
       sort=created:asc&client_id=${config.get(
         'githubClientId'
-      )}&client_secret=${config.get('githubSecret')}`, 
+      )}&client_secret=${config.get('githubSecret')}`,
 
       // Specify method of request
       method: 'GET',
 
       // Add to the headers
-      headers: { 'user-agent': 'node-js' }
-
+      headers: { 'user-agent': 'node-js' },
     };
 
     // Create request
     request(options, (error, response, body) => {
       // Check for error
-      if(error) console.error(error);
+      if (error) console.error(error);
 
       // Check for 200 response
-      if(response.statusCode != 200) {
+      if (response.statusCode != 200) {
         // Send status 404 not found
-        return res.status(404).json({msg: 'No Github profile found' });
+        return res.status(404).json({ msg: 'No Github profile found' });
       }
 
       // If Github profile found, send body that's going to contain it
@@ -548,6 +546,6 @@ router.get('/github/:username', (req, res) => {
     res.status(500).send('Server Error');
   }
 });
-//
+
 // Export
 module.exports = router;
