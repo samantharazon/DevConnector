@@ -154,5 +154,95 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
+// ==================================================================
+// @route    PUT api/posts/like/:id
+// @desc     Like a post
+// @access   Private
+// ==================================================================
+
+router.put('/like/:id', auth, async (req, res) => {
+  try {
+    // fetch the post by id
+    const post = await Post.findById(req.params.id);
+
+    // check if the post has already been liked by this user
+    // compare current iteration (current user) to user logged in
+    // turn into string to match user id that's in request.userid
+    // req.user.id is the logged in user
+    // if length is greater than 0, post has already been liked
+    if (
+      post.likes.filter((like) => like.user.toString() === req.user.id).length >
+      0
+    ) {
+      return res.status(400).json({ msg: 'Post already liked' });
+    }
+
+    // add like
+    // if user hasn't already liked it, take that post and likes and add on to it
+    // unshift puts like at the beginning
+    // we add the like from "user: req.user.id"
+    post.likes.unshift({ user: req.user.id });
+
+    // save like back to the database
+    await post.save();
+
+    // respond with the likes of the post
+    res.json(post.likes);
+
+    // catch error
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
+// ==================================================================
+// @route    PUT api/posts/unlike/:id
+// @desc     Like a post
+// @access   Private
+// ==================================================================
+
+router.put('/unlike/:id', auth, async (req, res) => {
+  try {
+    // fetch the post by id
+    const post = await Post.findById(req.params.id);
+
+    // check if the post has already been liked by this user
+    // why? we can't remove like on post that hasn't been liked
+    // compare current iteration (current user) to user logged in
+    // turn into string to match user id that's in request.userid
+    // req.user.id is the logged in user
+    // if length is equal to 0, we haven't liked the post yet
+    if (
+      post.likes.filter((like) => like.user.toString() === req.user.id)
+        .length === 0
+    ) {
+      return res.status(400).json({ msg: 'Post has not yet been liked' });
+    }
+
+    // get like to be removed
+    // get remove index
+    // for each like, return like.user and make it a string
+    const removeIndex = post.likes
+      .map((like) => like.user.toString())
+      .indexOf(req.user.id);
+
+    // splice like out of array
+    // take in that removeIndex, and just remove one
+    post.likes.splice(removeIndex, 1);
+
+    // save like back to the database
+    await post.save();
+
+    // respond with the likes of the post
+    res.json(post.likes);
+
+    // catch error
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 // Export
 module.exports = router;
