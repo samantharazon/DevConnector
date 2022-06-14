@@ -46,9 +46,6 @@ router.post(
     // Pulling things from req.body
     const { name, email, password } = req.body;
 
-    // --------------------------------
-    // Try
-    // --------------------------------
     try {
       // Check if user exists by email
       let user = await User.findOne({ email });
@@ -112,9 +109,7 @@ router.post(
         }
       );
 
-      // --------------------------------
       // Catch error
-      // --------------------------------
     } catch (err) {
       console.error(err.message);
       res.status(500).send('Server error');

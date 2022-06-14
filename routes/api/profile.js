@@ -17,9 +17,6 @@ const User = require('../../models/User');
 // ==================================================================
 
 router.get('/me', auth, async (req, res) => {
-  // --------------------------------
-  // Try
-  // --------------------------------
   try {
     // Call Profile Model, its user field, and get the user by id (which is in the token)
     const profile = await Profile.findOne({ user: req.user.id }).populate(
@@ -35,9 +32,7 @@ router.get('/me', auth, async (req, res) => {
     // If profile exists, send profile
     res.json(profile);
 
-    // --------------------------------
     // Catch error
-    // --------------------------------
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -107,7 +102,7 @@ router.post(
     if (status) profileFields.status = status;
     if (githubusername) profileFields.githubusername = githubusername;
     // Turn skills into array using .split (turns a string into an array). Then take in a comma
-    // Use .map so spaces don't matter
+    //    Use .map so spaces don't matter
     if (skills) {
       profileFields.skills = skills.split(',').map((skill) => skill.trim());
     }
@@ -126,12 +121,10 @@ router.post(
     if (linkedin) profileFields.social.linkedin = linkedin;
     if (instagram) profileFields.social.instagram = instagram;
 
-    // --------------------------------
-    // Try: update profile
-    // --------------------------------
+    // update profile
     try {
       // Find by user (req.user.id comes from the token)
-      // Note: Since we are using async await, when we use mongoose method .findOne, it returns a promise, so put keyword await
+      //    Note: Since we are using async await, when we use mongoose method .findOne, it returns a promise, so put keyword await
       let profile = await Profile.findOne({ user: req.user.id });
 
       // --------------------------------
@@ -179,20 +172,15 @@ router.post(
 // ==================================================================
 
 router.get('/', async (req, res) => {
-  // --------------------------------
-  // Try
-  // --------------------------------
   try {
     // Get all profiles
-    // Add name and avatar using .populate
+    //    Add name and avatar using .populate
     const profiles = await Profile.find().populate('user', ['name', 'avatar']);
 
     // Send profiles
     res.json(profiles);
 
-    // --------------------------------
     // Catch error
-    // --------------------------------
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -206,9 +194,6 @@ router.get('/', async (req, res) => {
 // ==================================================================
 
 router.get('/user/:user_id', async ({ params: { user_id } }, res) => {
-  // --------------------------------
-  // Try
-  // --------------------------------
   try {
     // Get profile from user ID
     const profile = await Profile.findOne({
@@ -221,9 +206,7 @@ router.get('/user/:user_id', async ({ params: { user_id } }, res) => {
     // Send profile
     return res.json(profile);
 
-    // --------------------------------
-    // Catch error
-    // --------------------------------
+    // Catch error-
   } catch (err) {
     console.error(err.message);
     // Check error kind
@@ -241,9 +224,6 @@ router.get('/user/:user_id', async ({ params: { user_id } }, res) => {
 // ==================================================================
 
 router.delete('/', auth, async (req, res) => {
-  // --------------------------------
-  // Try
-  // --------------------------------
   try {
     // @todo - remove users posts
 
@@ -256,9 +236,7 @@ router.delete('/', auth, async (req, res) => {
     // Return a message
     res.json({ msg: 'User deleted' });
 
-    // --------------------------------
     // Catch error
-    // --------------------------------
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -313,15 +291,12 @@ router.put(
       description,
     };
 
-    // --------------------------------
-    // Try
-    // --------------------------------
     try {
       // Fetch profile that we want to add experience to (using ID that we get from token)
       const profile = await Profile.findOne({ user: req.user.id });
 
       // Pushing experience to profile
-      // Pushing to beginning of array by using .unshift (as opposed to pushing)
+      //    Pushing to beginning of array by using .unshift (as opposed to pushing)
       profile.experience.unshift(newExp);
 
       // Save profile
@@ -330,9 +305,7 @@ router.put(
       // Return response
       res.json(profile);
 
-      // --------------------------------
       // Catch error
-      // --------------------------------
     } catch (err) {
       console.error(err.message);
       res.status(500).send('Server Error');
@@ -355,8 +328,8 @@ router.delete('/experience/:exp_id', auth, async (req, res) => {
     const profile = await Profile.findOne({ user: req.user.id });
 
     // Find correct experience to remove
-    // Get remove index
-    // Find the item id and its index (0, 1, 2, etc)
+    //    Get remove index
+    //    Find the item id and its index (0, 1, 2, etc)
     const removeIndex = profile.experience
       .map((item) => item.id)
       .indexOf(req.params.exp_id);
@@ -370,9 +343,7 @@ router.delete('/experience/:exp_id', auth, async (req, res) => {
     // Return profile
     res.json(profile);
 
-    // --------------------------------
     // Catch error
-    // --------------------------------
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -437,7 +408,7 @@ router.put(
       const profile = await Profile.findOne({ user: req.user.id });
 
       // Pushing education to profile
-      // Pushing to beginning of array by using .unshift (as opposed to pushing)
+      //    Pushing to beginning of array by using .unshift (as opposed to pushing)
       profile.education.unshift(newEdu);
 
       // Save profile
@@ -471,8 +442,8 @@ router.delete('/education/:edu_id', auth, async (req, res) => {
     const profile = await Profile.findOne({ user: req.user.id });
 
     // Find correct education to remove
-    // Get remove index
-    // Find the item id and its index (0, 1, 2, etc)
+    //    Get remove index
+    //    Find the item id and its index (0, 1, 2, etc)
     const removeIndex = profile.education
       .map((item) => item.id)
       .indexOf(req.params.edu_id);
@@ -486,9 +457,7 @@ router.delete('/education/:edu_id', auth, async (req, res) => {
     // Return profile
     res.json(profile);
 
-    // --------------------------------
     // Catch error
-    // --------------------------------
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -502,9 +471,6 @@ router.delete('/education/:edu_id', auth, async (req, res) => {
 // ==================================================================
 
 router.get('/github/:username', (req, res) => {
-  // --------------------------------
-  // Try
-  // --------------------------------
   try {
     // Construct options object with uri
     const options = {
@@ -538,9 +504,7 @@ router.get('/github/:username', (req, res) => {
       res.json(JSON.parse(body));
     });
 
-    // --------------------------------
     // Catch error
-    // --------------------------------
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
